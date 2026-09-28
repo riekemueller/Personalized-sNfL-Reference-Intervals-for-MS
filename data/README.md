@@ -12,6 +12,6 @@ The following datasets are relevant:
      - BIOPRO_H.xpt contains Serum Creatinine in mg/dL in variable LBXSCR
      - GHB_H.xpt contains Glycohemoglobin (HbA1c) in % in variable LBXGH
 - Questionnaire Data:
-     - RXG_PX contains prescription medications in variables RXDDRUG (drug name) and corresponding ICD-code in variable RXDRSC1, RXDRSC2 and RXDRSC3 to detect MS patients
+     - RXQ_RX_H.xpt contains prescription medications in variables RXDDRUG (drug name) and corresponding ICD-code in variable RXDRSC1, RXDRSC2 and RXDRSC3 to detect MS patients
      - MCQ_H.xpt contains medical conditions
      - PFQ_H.xpt contains physical functioning data (e.g. walking problems)
