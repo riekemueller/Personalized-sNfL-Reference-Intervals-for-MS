@@ -132,12 +132,14 @@ WithinPerson_Model <- R6Class("WithinPerson_Model",
 )
 
 # Child Class: Penalized Joint Quantile Model (PJQM2)
+# helper function: check function
 check_function <- function(w, tau) {
   # I(w <= 0) is 1, if w <= 0, otherwise 0
   indicator <- ifelse(w <= 0, 1, 0)
   return(w * (tau - indicator))
 }
 
+# helper function: penalty loss
 pjqm2_loss <- function(params, residuals, beta1, beta2, tau1, tau2, lambda_u, lambda_z) {
   u_i <- params[1]
   z_i <- params[2]
@@ -160,6 +162,7 @@ pjqm2_loss <- function(params, residuals, beta1, beta2, tau1, tau2, lambda_u, la
   return(loss1 + loss2 + penalty_u + penalty_z)
 }
 
+# Final PJQM2 Child Class
 PJQM2_Model <- R6Class("PJQM2_Model",
                        inherit = sNfL_Model,
                        

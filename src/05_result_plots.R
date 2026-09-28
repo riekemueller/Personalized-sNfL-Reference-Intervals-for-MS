@@ -1,30 +1,17 @@
-# ==============================================================================
-# Master Thesis: Chapter 5 Plot & Metrics Generation Script
-# Author: Rieke Müller
-# Project: Personalized sNfL Reference Intervals for Multiple Sclerosis
-# ==============================================================================
-
-# ------------------------------------------------------------------------------
-# 0. Imports & Global Setup
-# ------------------------------------------------------------------------------
 library(dplyr)
 library(ggplot2)
 library(tidyr) 
 library(tikzDevice)
 
-# Eigene Prozent-Formatierung für LaTeX (maskiertes %)
 tex_percent <- scales::label_percent(suffix = "\\%")
-
-# Konsistente Farbpalette für die Modelle
 model_colors <- c(
-  "FixedCutoff"   = "#E41A1C", # Rot (Klinischer Standard)
-  "PJQM2"         = "#4DAF4A", # Grün (Penalized Joint Quantile)
-  "WithinPerson"  = "#377EB8", # Blau (Personalisierte Biologische Varianz)
-  "WithinSubject" = "#984EA3", # Violett (Personalisierte Population-Varianz)
-  "GAMLSS"        = "#FF7F00"  # Orange
+  "FixedCutoff"   = "#E41A1C", 
+  "PJQM2"         = "#4DAF4A", 
+  "WithinPerson"  = "#377EB8", 
+  "WithinSubject" = "#984EA3", 
+  "GAMLSS"        = "#FF7F00" 
 )
 
-# Saubere Metric-Beschriftungen für Facets (erweitert um Balanced Accuracy)
 metric_labels <- c(
   "Sensitivity"       = "Sensitivity (TPR)",
   "Specificity"       = "Specificity (TNR)",
@@ -37,9 +24,7 @@ metric_labels <- c(
   "Error_Rate"        = "Overall Error Rate"
 )
 
-# ------------------------------------------------------------------------------
-# 1. Dateneingabe & Metrikberechnung
-# ------------------------------------------------------------------------------
+
 data_path  <- "C:/Users/Rieke/Documents/thesis_experiments/results/results_metrics_final.csv"
 output_dir <- "C:/Users/Rieke/Documents/thesis_experiments/plots/"
 
@@ -63,9 +48,7 @@ df <- df %>%
     Youden_Index      = Sensitivity + Specificity - 1
   )
 
-# ==============================================================================
-# SECTION 5.1: Initialization Stability across Baseline Lengths (n)
-# ==============================================================================
+# SECTION 5.1: Initialization Stability across Baseline Lengths
 p1_data <- df %>%
   group_by(model, baseline_length) %>%
   summarise(across(c(Sensitivity, Specificity, Precision, NPV, F1_Score, F2_Score, F0_5_Score, Balanced_Accuracy, Error_Rate), 
@@ -73,14 +56,8 @@ p1_data <- df %>%
   pivot_longer(cols = Sensitivity:Error_Rate, names_to = "Metric", values_to = "Value") %>%
   mutate(Metric = factor(Metric, levels = c("Sensitivity", "Specificity", "Precision", "NPV", "F1_Score", "F2_Score", "F0_5_Score", "Balanced_Accuracy", "Error_Rate")))
 
-# Visuelle Markierung der harten klinischen Grenze (95% Spezifität)
 hline_p1 <- data.frame(Metric = factor("Specificity", levels = levels(p1_data$Metric)), Value = 0.95)
 
-# ------------------------------------------------------------------------------
-# 5.1a Plot: jetzt im 3x3-Layout (9 Metriken -> ncol = 3)
-# ------------------------------------------------------------------------------
-# Y-Achsen-Grenzen pro Metrik berechnen: 5% Puffer unten, 10% Puffer oben,
-# aber niemals unter 0% bzw. über 100%
 y_limits_data <- p1_data %>%
   group_by(Metric) %>%
   summarise(
@@ -111,28 +88,17 @@ p1 <- ggplot(p1_data, aes(x = baseline_length, y = Value, color = model, group =
   theme(strip.text = element_text(face = "bold", size = 10),
         legend.position = "bottom")
 
-# Breite/Höhe an quadratischeres 3x3-Layout angepasst (vorher 14x7 für 3x4)
 ggsave(paste0(output_dir, "plot_5_1_metrics_vs_baseline.png"), plot = p1, width = 10.5, height = 10)
 
 tikz(paste0(output_dir, "plot_5_1_metrics_vs_baseline.tex"), width = 10.5, height = 10)
 print(p1)
 dev.off()
 
-# ------------------------------------------------------------------------------
-# 5.1b Stabilitätsanalyse: exakte Berechnung basierend auf der Corridor-of-
-# Stability-Definition (Schönbrodt & Perugini, 2013), erweitert um ein
-# monotones Kriterium: Eine Metrik gilt bei n als stabil, wenn für ALLE
-# nachfolgend getesteten n' > n gilt, dass sich der Wert monoton (gleiches
-# Vorzeichen der Änderung, oder keine Änderung) und um weniger als 2
-# Prozentpunkte relativ zum jeweils vorherigen n verändert.
-# ------------------------------------------------------------------------------
-
-#' Findet das kleinste n, ab dem eine Metrikkurve als "stabil" gilt.
-#'
-#' @param baseline_lengths Numerischer Vektor der getesteten n-Werte, aufsteigend sortiert.
-#' @param values Numerischer Vektor der Metrikwerte (gleiche Reihenfolge wie baseline_lengths), als Proportion (0-1).
-#' @param threshold Schwelle in Prozentpunkten (Default: 0.02 = 2 pp).
-#' @return Liste mit stable (logical), stable_at_n (numeric oder NA)
+# find smalles n for which the definition holds
+#' @param baseline_lengths sort n in increasing order
+#' @param values vector of measurements
+#' @param threshold threshold
+#' @return list with stable (logical), stable_at_n (numeric oder NA)
 find_stability_point <- function(baseline_lengths, values, 
                                  abs_threshold = 0.02, 
                                  min_remaining_steps = 2) {
@@ -145,8 +111,6 @@ find_stability_point <- function(baseline_lengths, values,
   
   diffs <- diff(v_sorted)
   
-  # Nur Startpunkte prüfen, bei denen noch mindestens 
-  # min_remaining_steps Schritte folgen (verhindert Trivialität am Rand)
   max_i <- k - min_remaining_steps
   if (max_i < 1) return(list(stable = FALSE, stable_at_n = NA_real_))
   
@@ -165,7 +129,7 @@ find_stability_point <- function(baseline_lengths, values,
   return(list(stable = FALSE, stable_at_n = NA_real_))
 }
 
-# Stabilität nur für die vier aussagekräftigen Metriken berechnen
+# stability for four metrics
 metrics_for_stability <- c("Sensitivity", "Specificity", "Balanced_Accuracy", "Error_Rate")
 
 stability_results <- p1_data %>%
@@ -184,7 +148,6 @@ stability_results <- p1_data %>%
   ) %>%
   select(-result)
 
-# In breites Format für die LaTeX-Tabelle bringen (Modelle als Zeilen, Metriken als Spalten)
 stability_table <- stability_results %>%
   mutate(Label = ifelse(stable, paste0("Yes, at $n=", stable_at_n, "$"), "No")) %>%
   select(model, Metric, Label) %>%
@@ -192,15 +155,13 @@ stability_table <- stability_results %>%
 
 write.csv(stability_table, paste0(output_dir, "stability_table_5_1.csv"), row.names = FALSE)
 
-# Zusätzlich: Rohwerte (exakte Prozentwerte je n) für Prüfzwecke/Anhang exportieren
+# export raw values
 write.csv(p1_data, paste0(output_dir, "5_1_metrics_vs_baseline_raw_values_.csv"), row.names = FALSE)
 
 cat("\nStability table:\n")
 print(stability_table)
 
-# ==============================================================================
 # SECTION 5.2: Impact of Monitoring Frequency on Detection Performance
-# ==============================================================================
 p3_data <- df %>%
   group_by(model, sampling_freq) %>%
   summarise(Mean_Balanced_Accuracy = mean(Balanced_Accuracy, na.rm = TRUE), .groups = "drop")
@@ -221,12 +182,11 @@ p3 <- ggplot(p3_data, aes(x = as.factor(sampling_freq), y = Mean_Balanced_Accura
   theme(legend.position = "bottom")
 
 ggsave(paste0(output_dir, "plot_5_2_sampling_frequency.png"), plot = p3, width = 7.5, height = 4.5)
-
+# raw values
 tikz(paste0(output_dir, "plot_5_2_sampling_frequency.tex"), width = 7.5, height = 4.5)
 print(p3)
 dev.off()
 
-# Exakte Prozentwerte für den Fließtext exportieren
 p3_export <- p3_data %>%
   mutate(Balanced_Accuracy_Pct = sprintf("%.2f%%", Mean_Balanced_Accuracy * 100)) %>%
   arrange(model, sampling_freq)
@@ -236,9 +196,7 @@ write.csv(p3_export, paste0(output_dir, "5_2_sampling_frequency_values.csv"), ro
 cat("\nExact Balanced Accuracy values by model and sampling frequency:\n")
 print(p3_export)
 
-# ==============================================================================
-# SECTION 5.3: Influence of Significance Levels (alpha) on Diagnostic Trade-offs
-# ==============================================================================
+# SECTION 5.3: Influence of Significance Levels on Diagnostic Trade-offs
 p2_data <- df %>%
   group_by(model, alpha) %>%
   summarise(
@@ -251,7 +209,6 @@ p2_data <- df %>%
   pivot_longer(cols = c(Sensitivity, FPR), names_to = "Metric", values_to = "Value") %>%
   mutate(Metric = factor(Metric, levels = c("Sensitivity", "FPR")))
 
-# Visuelle Markierung der harten klinischen Grenze (max 5% FPR)
 hline_p2 <- data.frame(Metric = factor("FPR", levels = levels(p2_data$Metric)), Value = 0.05)
 
 p2 <- ggplot(p2_data, aes(x = as.factor(alpha), y = Value, color = model, 
@@ -281,7 +238,6 @@ tikz(paste0(output_dir, "plot_5_3_metrics_vs_alpha.tex"), width = 9, height = 6.
 print(p2)
 dev.off()
 
-# Exakte Prozentwerte für den Fließtext exportieren
 p2_export <- p2_data %>%
   mutate(Value_Pct = sprintf("%.2f%%", Value * 100)) %>%
   arrange(model, Metric, alpha)
@@ -291,11 +247,7 @@ write.csv(p2_export, paste0(output_dir, "5_3_metrics_vs_alpha_values.csv"), row.
 cat("\nExact Sensitivity/FPR values by model and alpha:\n")
 print(p2_export)
 
-# ==============================================================================
-# SECTION 5.4: Global Diagnostic Accuracy — exact values export
-# ==============================================================================
-
-# 5.4a Exportiere alle einzelnen Konfigurationen (roh) für Nachschlagezwecke
+# SECTION 5.4: Global Diagnostic Accuracy 
 roc_raw_export <- df %>%
   filter(!is.na(Sensitivity), !is.na(Specificity)) %>%
   mutate(FPR = 1 - Specificity) %>%
@@ -304,9 +256,7 @@ roc_raw_export <- df %>%
 
 write.csv(roc_raw_export, paste0(output_dir, "5_4_roc_raw_configurations.csv"), row.names = FALSE)
 
-# 5.4b Zusammenfassende Kennzahlen pro Modell: Bereich von FPR & Sensitivity,
-# sowie tatsächliche Werte in der Low-FPR-Region (<= 25%) — relevant für
-# den Vergleich mit PJQM2 und die spätere 5%-Constraint-Section
+# 5.4b
 model_ranges <- df %>%
   filter(!is.na(Sensitivity), !is.na(Specificity)) %>%
   mutate(FPR = 1 - Specificity) %>%
@@ -326,8 +276,7 @@ model_ranges <- df %>%
 
 write.csv(model_ranges, paste0(output_dir, "5_4_model_ranges.csv"), row.names = FALSE)
 
-# 5.4c Innerhalb der klinisch relevanten Low-FPR-Region (<=25%): 
-# Sensitivity-Spanne jedes Modells, das dort überhaupt Konfigurationen hat
+# 5.4c Inside Low-FPR-Region (<=25%): 
 low_fpr_detail <- df %>%
   filter(!is.na(Sensitivity), !is.na(Specificity)) %>%
   mutate(FPR = 1 - Specificity) %>%
@@ -350,7 +299,6 @@ print(model_ranges)
 cat("\nLow-FPR region (<=25%) detail:\n")
 print(low_fpr_detail)
 
-# Exakte Median-/Mittelwerte pro Modell für den Fließtext
 ba_summary <- df %>%
   filter(!is.na(Balanced_Accuracy)) %>%
   group_by(model) %>%
@@ -366,9 +314,7 @@ ba_summary <- df %>%
 write.csv(ba_summary, paste0(output_dir, "5_4_balanced_accuracy_summary.csv"), row.names = FALSE)
 print(ba_summary)
 
-# ==============================================================================
 # SECTION 5.5: Clinical Utility & Optimization Tables Export
-# ==============================================================================
 # balanced accuracy optimum
 optimal_balanced <- df %>%
   filter(!is.na(Balanced_Accuracy)) %>%
@@ -396,8 +342,6 @@ all_clinical_95 <- df %>%
 
 write.csv(all_clinical_95, paste0(output_dir, "5_5_all_models_clinical_95.csv"), row.names = FALSE)
 
-# Best-of-Zusammenfassung (eine Zeile pro Modell) bleibt zusätzlich erhalten,
-# für den schnellen Überblick / die Haupttabelle im Text
 optimal_clinical_95 <- all_clinical_95 %>%
   group_by(model) %>%
   slice_max(order_by = Sensitivity, n = 1, with_ties = TRUE) %>%
@@ -406,10 +350,7 @@ optimal_clinical_95 <- all_clinical_95 %>%
 
 write.csv(optimal_clinical_95, paste0(output_dir, "5_5_optimal_models_clinical_95.csv"), row.names = FALSE)
 
-# ------------------------------------------------------------------------------
 # Clinical constraint: Specificity >= 90%
-# ALLE Konfigurationen, die den Constraint erfüllen, nicht nur die beste pro Modell
-# ------------------------------------------------------------------------------
 all_clinical_90 <- df %>%
   filter(!is.na(Sensitivity), !is.na(Specificity), Specificity >= 0.90) %>%
   select(model, baseline_length, sampling_freq, alpha, Sensitivity, Specificity, Precision, Balanced_Accuracy, F2_Score) %>%
@@ -430,10 +371,7 @@ print(all_clinical_95)
 cat("\nAll configurations meeting Specificity >= 90%:\n")
 print(all_clinical_90)
 
-# ==============================================================================
 # SECTION 5.5: Pareto Frontier of PJQM2 under the 95% Specificity Constraint
-# ==============================================================================
-
 pjqm2_feasible_95 <- df %>%
   filter(model == "PJQM2", !is.na(Sensitivity), !is.na(Specificity), Specificity >= 0.95) %>%
   mutate(
@@ -464,5 +402,5 @@ dev.off()
 cat("\nNumber of PJQM2 configurations meeting Specificity >= 95%:", nrow(pjqm2_feasible_95), "\n")
 
 cat("\n========================================================================\n")
-cat("SUCCESS: All plots (.png and .tex) and summary tables generated cleanly!\n")
+cat("SUCCESS: Finished!\n")
 cat("========================================================================\n")

@@ -1,0 +1,55 @@
+run 1:
+[ 1/25] Test lambda_u =  0.1 | lambda_z =  1.0 ... FPR: 0.0918
+[ 2/25] Test lambda_u =  1.0 | lambda_z =  1.0 ... FPR: 0.1279
+[ 3/25] Test lambda_u =  2.0 | lambda_z =  1.0 ... FPR: 0.1645
+[ 4/25] Test lambda_u =  5.0 | lambda_z =  1.0 ... FPR: 0.2597
+[ 5/25] Test lambda_u = 10.0 | lambda_z =  1.0 ... FPR: 0.3450
+[ 6/25] Test lambda_u =  0.1 | lambda_z =  5.0 ... FPR: 0.1037
+[ 7/25] Test lambda_u =  1.0 | lambda_z =  5.0 ... FPR: 0.1337
+[ 8/25] Test lambda_u =  2.0 | lambda_z =  5.0 ... FPR: 0.1853
+[ 9/25] Test lambda_u =  5.0 | lambda_z =  5.0 ... FPR: 0.2745
+[10/25] Test lambda_u = 10.0 | lambda_z =  5.0 ... FPR: 0.3558
+[11/25] Test lambda_u =  0.1 | lambda_z = 10.0 ... FPR: 0.1045
+[12/25] Test lambda_u =  1.0 | lambda_z = 10.0 ... FPR: 0.1329
+[13/25] Test lambda_u =  2.0 | lambda_z = 10.0 ... FPR: 0.1858
+[14/25] Test lambda_u =  5.0 | lambda_z = 10.0 ... FPR: 0.2813
+[15/25] Test lambda_u = 10.0 | lambda_z = 10.0 ... FPR: 0.3629
+[16/25] Test lambda_u =  0.1 | lambda_z = 20.0 ... FPR: 0.1045
+[17/25] Test lambda_u =  1.0 | lambda_z = 20.0 ... FPR: 0.1337
+[18/25] Test lambda_u =  2.0 | lambda_z = 20.0 ... FPR: 0.1863
+[19/25] Test lambda_u =  5.0 | lambda_z = 20.0 ... FPR: 0.2824
+[20/25] Test lambda_u = 10.0 | lambda_z = 20.0 ... FPR: 0.3750
+[21/25] Test lambda_u =  0.1 | lambda_z = 50.0 ... FPR: 0.1045
+[22/25] Test lambda_u =  1.0 | lambda_z = 50.0 ... FPR: 0.1326
+[23/25] Test lambda_u =  2.0 | lambda_z = 50.0 ... FPR: 0.1855
+[24/25] Test lambda_u =  5.0 | lambda_z = 50.0 ... FPR: 0.2832
+[25/25] Test lambda_u = 10.0 | lambda_z = 50.0 ... FPR: 0.3776
+
+run 2:
+[ 1/20] Test lambda_u =  0.001 | lambda_z =  0.1 ... FPR: 0.0808
+[ 2/20] Test lambda_u =  0.01 | lambda_z =  0.1 ... FPR: 0.0808
+[ 3/20] Test lambda_u =  0.03 | lambda_z =  0.1 ... FPR: 0.0824
+[ 4/20] Test lambda_u =  0.05 | lambda_z =  0.1 ... FPR: 0.0834
+[ 5/20] Test lambda_u =  0.1 | lambda_z =  0.1 ... FPR: 0.0832
+[ 6/20] Test lambda_u =  0.001 | lambda_z =  0.5 ... FPR: 0.0861
+[ 7/20] Test lambda_u =  0.01 | lambda_z =  0.5 ... FPR: 0.0866
+[ 8/20] Test lambda_u =  0.03 | lambda_z =  0.5 ... FPR: 0.0866
+[ 9/20] Test lambda_u =  0.05 | lambda_z =  0.5 ... FPR: 0.0874
+[10/20] Test lambda_u =  0.1 | lambda_z =  0.5 ... FPR: 0.0876
+[11/20] Test lambda_u =  0.001 | lambda_z =  1.0 ... FPR: 0.0876
+[12/20] Test lambda_u =  0.01 | lambda_z =  1.0 ... FPR: 0.0887
+[13/20] Test lambda_u =  0.03 | lambda_z =  1.0 ... FPR: 0.0892
+[14/20] Test lambda_u =  0.05 | lambda_z =  1.0 ... FPR: 0.0908
+[15/20] Test lambda_u =  0.1 | lambda_z =  1.0 ... FPR: 0.0918
+[16/20] Test lambda_u =  0.001 | lambda_z =  5.0 ... FPR: 0.1037
+[17/20] Test lambda_u =  0.01 | lambda_z =  5.0 ... FPR: 0.1037
+[18/20] Test lambda_u =  0.03 | lambda_z =  5.0 ... FPR: 0.1037
+[19/20] Test lambda_u =  0.05 | lambda_z =  5.0 ... FPR: 0.1037
+[20/20] Test lambda_u =  0.1 | lambda_z =  5.0 ... FPR: 0.1037
+# ergebnisse in kurz von run 2
+  Total_TN Total_FP        FPR lambda_u lambda_z Abweichung_vom_Ziel
+1     3493      307 0.08078947    0.001      0.1          0.03078947
+2     3493      307 0.08078947    0.010      0.1          0.03078947
+3     3487      313 0.08236842    0.030      0.1          0.03236842
+4     3484      316 0.08315789    0.100      0.1          0.03315789
+5     3483      317 0.08342105    0.050      0.1          0.03342105

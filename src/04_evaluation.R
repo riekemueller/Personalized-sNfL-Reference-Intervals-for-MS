@@ -1,3 +1,4 @@
+# evaluates all models and configurations
 evaluate_patient_trajectory <- function(pat_data, models, baseline_n) {
   
   if (is.null(pat_data) || !is.data.frame(pat_data)) return(NULL)
@@ -83,10 +84,10 @@ run_full_evaluation <- function(cohort_data, config, output_file, gamlss_data = 
     scenario_results <- list()
     
     models <- list(
-      #FixedCutoff   = FixedCutoff_Model$new(cutoff = 12.9),
-      #WithinSubject = WithinSubject_Model$new(cv_i = 0.086, alpha = params$alpha),
-      #WithinPerson  = WithinPerson_Model$new(alpha = params$alpha),
-      #PJQM2         = PJQM2_Model$new(alpha = params$alpha),
+      FixedCutoff   = FixedCutoff_Model$new(cutoff = 12.9),
+      WithinSubject = WithinSubject_Model$new(cv_i = 0.086, alpha = params$alpha),
+      WithinPerson  = WithinPerson_Model$new(alpha = params$alpha),
+      PJQM2         = PJQM2_Model$new(alpha = params$alpha),
       GAMLSS        = GAMLSS_Model$new(alpha = params$alpha)
     )
     
