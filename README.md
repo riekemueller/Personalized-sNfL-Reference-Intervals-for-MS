@@ -6,7 +6,8 @@ Author: Rieke Müller, Goethe University, Germany, 2026
 Install the following packages: here, dplyr, tidyr, readxl, stringr, haven, R6, splines, ggplot2, tikzDevice
 
 ## 1. NHANES Dataset (Folder /data)
-Data is downloaded from NHANES 2013-2024 cohort: https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2013
+The data files are not included in this repository. Please download them from the following website and place them in the /data folder.
+NHANES 2013-2024 cohort: https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2013
 
 The following datasets are relevant and should be stored in the data folder:
 - Demographics Data: 
