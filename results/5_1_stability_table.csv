@@ -1,0 +1,6 @@
+"model","Sensitivity","Specificity","Balanced_Accuracy","Error_Rate"
+"FixedCutoff","Yes, at $n=2$","No","No","No"
+"GAMLSS","No","Yes, at $n=2$","Yes, at $n=5$","Yes, at $n=2$"
+"PJQM2","No","Yes, at $n=7$","No","Yes, at $n=7$"
+"WithinPerson","Yes, at $n=10$","No","No","No"
+"WithinSubject","No","No","No","No"

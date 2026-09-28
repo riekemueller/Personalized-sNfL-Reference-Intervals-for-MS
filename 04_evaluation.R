@@ -21,7 +21,8 @@ evaluate_patient_trajectory <- function(pat_data, models, baseline_n) {
       crea_history  = history_data$LBXSCR,
       current_bmi   = current_visit$BMXBMI,
       current_hba1c = current_visit$LBXGH,
-      current_crea  = current_visit$LBXSCR
+      current_crea  = current_visit$LBXSCR,
+      current_zscore = if("nfl.zscore" %in% names(current_visit)) current_visit$nfl.zscore else NA
     )
     
     actual_relapse <- current_visit$Relapse_Effect > 0.01 
@@ -59,7 +60,7 @@ evaluate_patient_trajectory <- function(pat_data, models, baseline_n) {
 
 
 # grid search
-run_full_evaluation <- function(cohort_data, config, output_file) {
+run_full_evaluation <- function(cohort_data, config, output_file, gamlss_data = NULL) {
   
   grid <- config
   all_metrics <- list()
@@ -82,19 +83,35 @@ run_full_evaluation <- function(cohort_data, config, output_file) {
     scenario_results <- list()
     
     models <- list(
-      FixedCutoff   = FixedCutoff_Model$new(cutoff = 12.9),
-      WithinSubject = WithinSubject_Model$new(cv_i = 0.086, alpha = params$alpha),
-      WithinPerson  = WithinPerson_Model$new(alpha = params$alpha),
-      PJQM2         = PJQM2_Model$new(alpha = params$alpha)
+      #FixedCutoff   = FixedCutoff_Model$new(cutoff = 12.9),
+      #WithinSubject = WithinSubject_Model$new(cv_i = 0.086, alpha = params$alpha),
+      #WithinPerson  = WithinPerson_Model$new(alpha = params$alpha),
+      #PJQM2         = PJQM2_Model$new(alpha = params$alpha),
+      GAMLSS        = GAMLSS_Model$new(alpha = params$alpha)
     )
     
     for (p in 1:nrow(eval_cohort)) {
       pat <- eval_cohort[p, ]
       
-      sim_data <- generate_longitudinal_baseline(pat, follow_up_years = 35, freq_years = params$sampling_freq) %>%
+      sim_data <- generate_longitudinal_baseline(pat, follow_up_years = 35, freq_years = 1/12) %>%
         inject_relapses_and_noise(arr = 0.3, kappa_disp = 0.5)
       
-      pat_res <- evaluate_patient_trajectory(sim_data$observed, models, baseline_n = params$baseline_length)
+      if (!is.null(gamlss_data)) {
+        sim_data$observed <- sim_data$observed %>%
+          mutate(Join_Time = round(Time_Years, 2)) %>%
+          left_join(
+            gamlss_data %>%
+              mutate(Join_Time = round(Time_Years, 2)) %>%
+              select(patient.id, Join_Time, nfl.zscore),
+            by = c("SEQN" = "patient.id", "Join_Time" = "Join_Time")
+          ) %>%
+          select(-Join_Time)
+      }
+      
+      filtered_obs <- sim_data$observed %>%
+        filter(round(Time_Years %% params$sampling_freq, 5) == 0)
+      
+      pat_res <- evaluate_patient_trajectory(filtered_obs, models, baseline_n = params$baseline_length)
       
       if (!is.null(pat_res)) {
         scenario_results[[length(scenario_results) + 1]] <- pat_res

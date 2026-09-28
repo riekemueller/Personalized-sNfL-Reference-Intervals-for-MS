@@ -1,0 +1,2 @@
+"model","baseline_length","sampling_freq","alpha","Sensitivity","Specificity","Precision","Balanced_Accuracy","F2_Score"
+"PJQM2",30,0.25,0.05,0.6,0.963098921990979,0.0024603608529251,0.78154946099549,0.0121032813340506

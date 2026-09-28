@@ -10,7 +10,7 @@ calc_age_effect <- function(age) {
   effect <- numeric(length(age))
   for (i in 1:length(age)) {
     a <- age[i]
-    if (a <= 30) {
+    if (a < 30) {
       effect[i] <- 0
     } else if (a >= 30 & a < 50) {
       effect[i] <- 0.021 * (a - 30)
@@ -154,7 +154,7 @@ generate_longitudinal_baseline <- function(cohort_data, follow_up_years=35, freq
 inject_relapses_and_noise <- function(sim_data_list, 
                                       arr = 0.3,              
                                       kappa_disp = 0.5) {   
-  set.seed(42) # for reproducability
+  #set.seed(42) # for reproducability, uncommend for plot patient 0 prediction interval as no monte carlo simulation is possible
   
   latent_list <- list()
   obs_list <- list()
