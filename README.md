@@ -22,6 +22,8 @@ The following datasets are relevant and should be stored in the data folder:
      - RXQ_RX_H.xpt contains prescription medications in variables RXDDRUG (drug name) and corresponding ICD-code in variable RXDRSC1, RXDRSC2 and RXDRSC3 to detect MS patients
      - MCQ_H.xpt contains medical conditions
      - PFQ_H.xpt contains physical functioning data (e.g. walking problems)
+ 
+Additionally, to get results for the GAMLSS Model as well, an Excel based on the simulation (age, bmi, sNfL siemens values) has to be sent to the owner of https://shiny.dkfbasel.ch/baselnflreference/ (currently Jens Kuhle, jens.kuhle@usb.ch). The returned Excel (z-score, percentile value) has to be placed in the data folder and can be processed by this program.
 
 
 ## 2. Source Code (Folder /src)
@@ -34,7 +36,7 @@ The following datasets are relevant and should be stored in the data folder:
      - Fixed Cut-Off model with a static 12.9 threshold 
      - Within-Subject Model of Coskun et al. [1]
      - Within-Person Model of Coskun et al. [2, 3]
-     - PJQM2 Model of Pusparum et al. [4]
+     - CA-PJQM2 Adapted Model of Pusparum et al. [4]
      - GAMLSS Model of Benkert et al. [5]: here the model is not implemented itself but its results are processed.
 4. in 03_simulation.R: The longitudinal simulation based on the Data Generation Process is implemented.
 5. in 04_evaluation.R: The evaluation with all parameter configurations and all models is implemented.
